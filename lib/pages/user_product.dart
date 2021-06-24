@@ -9,6 +9,11 @@ import '../widgets/App_drawer.dart';
 class UserProductScreen extends StatelessWidget {
   // this class is about all the item created by the user, they can be edited and deleted here
   static const routeName = '/userProduct';
+
+  Future<void> _refreshProducts(BuildContext context) async {
+    await Provider.of<ProductsProvider>(context, listen: false).AddAndFetch();
+  }
+
   @override
   Widget build(BuildContext context) {
     final productData = Provider.of<ProductsProvider>(context);
@@ -25,19 +30,22 @@ class UserProductScreen extends StatelessWidget {
           ],
         ),
         drawer: AppDrawer(),
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ListView.builder(
-              itemCount: productData.items.length,
-              itemBuilder: (_, i) => Column(
-                    children: [
-                      UserProduct(
-                          id: productData.items[i].id,
-                          title: productData.items[i].title,
-                          imageUrl: productData.items[i].imageUrl),
-                      Divider()
-                    ],
-                  )),
+        body: RefreshIndicator(
+          onRefresh: () => _refreshProducts(context),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListView.builder(
+                itemCount: productData.items.length,
+                itemBuilder: (_, i) => Column(
+                      children: [
+                        UserProduct(
+                            id: productData.items[i].id,
+                            title: productData.items[i].title,
+                            imageUrl: productData.items[i].imageUrl),
+                        Divider()
+                      ],
+                    )),
+          ),
         ),
       ),
     );

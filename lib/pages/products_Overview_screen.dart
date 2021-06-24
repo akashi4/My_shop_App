@@ -1,3 +1,4 @@
+import 'package:MyShop_App/providers/products_provider.dart';
 import 'package:MyShop_App/widgets/App_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +21,12 @@ class ProducOverviewScreen extends StatefulWidget {
 
 class _ProducOverviewScreenState extends State<ProducOverviewScreen> {
   var showOnlyFavorites = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<ProductsProvider>(context, listen: false).AddAndFetch();
+  }
 
   @override
   Widget build(BuildContext context) {

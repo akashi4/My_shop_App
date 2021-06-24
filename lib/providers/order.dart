@@ -1,4 +1,8 @@
+import 'dart:convert';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 
 import '../models/cart.dart';
 
@@ -22,13 +26,58 @@ class Order with ChangeNotifier {
     return [..._orders];
   }
 
-  void addOrders(List<CartItem> cartProducts, double total) {
+  Future<void> addOrders(List<CartItem> cartProducts, double total) async {
+    final url = Uri.parse(
+        'https://myshop-9d36f-default-rtdb.firebaseio.com/orders.json');
+    final timeSpan = DateTime.now();
+    final response = await http.post(url,
+        body: json.encode({
+          "amount": total,
+          "dateTime": timeSpan.toIso8601String(),
+          "products": cartProducts.map((cartProd) {
+            return {
+              "id": cartProd.id,
+              "title": cartProd.title,
+              "quantity": cartProd.quantity,
+              "price": cartProd.price
+            };
+          }).toList()
+        }));
+
     _orders.insert(
         0,
         OrderItem(
-            id: DateTime.now().toString(),
+            id: json.decode(response.body)['name'],
             amount: total,
             Products: cartProducts,
-            dateTime: DateTime.now()));
+            dateTime: timeSpan));
+  }
+
+  Future<void> FetchAndSetOrders() async {
+    final url = Uri.parse(
+        'https://myshop-9d36f-default-rtdb.firebaseio.com/orders.json');
+
+    final response = await http.get(url);
+    final List<OrderItem> loadedOrders = [];
+    final extractedData = json.decode(response.body) as Map<String, dynamic>;
+    if (extractedData == null) {
+      return;
+    }
+    extractedData.forEach((orderId, orderData) {
+      loadedOrders.add(OrderItem(
+          id: orderId,
+          dateTime: DateTime.parse(orderData['dateTime']),
+          amount: orderData['amount'],
+          Products: (orderData['product'] as List<dynamic>).map((item) {
+            return CartItem(
+                id: item['id'],
+                title: item['title'],
+                price: item['price'],
+                quantity: item['quantity']);
+          }).toList()));
+    });
+
+    _orders = loadedOrders;
+    notifyListeners();
   }
 }
