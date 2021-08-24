@@ -18,9 +18,9 @@ class Product with ChangeNotifier {
       @required this.imageUrl,
       this.isFavorite = false});
 
-  Future<void> toggleFavorite() async {
+  Future<void> toggleFavorite(String authToken, String userId) async {
     final url = Uri.parse(
-        'https://myshop-9d36f-default-rtdb.firebaseio.com/products/$id.json');
+        'https://myshop-9d36f-default-rtdb.firebaseio.com/userFavorites/$userId/.json?auth=$authToken');
     var oldfav = isFavorite;
     isFavorite = !isFavorite;
     notifyListeners();

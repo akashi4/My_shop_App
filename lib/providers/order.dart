@@ -9,26 +9,29 @@ import '../models/cart.dart';
 class OrderItem {
   final String id;
   final double amount;
-  final List<CartItem> Products;
+  final List<CartItem> products;
   final DateTime dateTime;
 
   OrderItem(
       {@required this.id,
       @required this.amount,
-      @required this.Products,
+      @required this.products,
       @required this.dateTime});
 }
 
 class Order with ChangeNotifier {
+  final String authToken;
   List<OrderItem> _orders = [];
 
   List<OrderItem> get orders {
     return [..._orders];
   }
 
+  Order(this._orders, this.authToken);
+
   Future<void> addOrders(List<CartItem> cartProducts, double total) async {
     final url = Uri.parse(
-        'https://myshop-9d36f-default-rtdb.firebaseio.com/orders.json');
+        'https://myshop-9d36f-default-rtdb.firebaseio.com/orders.json?auth=authToken');
     final timeSpan = DateTime.now();
     final response = await http.post(url,
         body: json.encode({
@@ -49,13 +52,13 @@ class Order with ChangeNotifier {
         OrderItem(
             id: json.decode(response.body)['name'],
             amount: total,
-            Products: cartProducts,
+            products: cartProducts,
             dateTime: timeSpan));
   }
 
-  Future<void> FetchAndSetOrders() async {
+  Future<void> fetchAndSetOrders() async {
     final url = Uri.parse(
-        'https://myshop-9d36f-default-rtdb.firebaseio.com/orders.json');
+        'https://myshop-9d36f-default-rtdb.firebaseio.com/orders.json?auth=authToken');
 
     final response = await http.get(url);
     final List<OrderItem> loadedOrders = [];
@@ -68,7 +71,7 @@ class Order with ChangeNotifier {
           id: orderId,
           dateTime: DateTime.parse(orderData['dateTime']),
           amount: orderData['amount'],
-          Products: (orderData['product'] as List<dynamic>).map((item) {
+          products: (orderData['product'] as List<dynamic>).map((item) {
             return CartItem(
                 id: item['id'],
                 title: item['title'],

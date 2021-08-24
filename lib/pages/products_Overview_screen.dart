@@ -15,6 +15,7 @@ enum FiltersOption {
 }
 
 class ProducOverviewScreen extends StatefulWidget {
+  static const routeName = "/prodcutOverview";
   @override
   _ProducOverviewScreenState createState() => _ProducOverviewScreenState();
 }
@@ -25,7 +26,7 @@ class _ProducOverviewScreenState extends State<ProducOverviewScreen> {
   @override
   void initState() {
     super.initState();
-    Provider.of<ProductsProvider>(context, listen: false).AddAndFetch();
+    Provider.of<ProductsProvider>(context, listen: false).addAndFetch();
   }
 
   @override

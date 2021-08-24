@@ -6,6 +6,10 @@ import 'package:http/http.dart' as http;
 import '../models/product.dart';
 
 class ProductsProvider with ChangeNotifier {
+  String authToken;
+  String userId;
+
+  ProductsProvider(this.authToken, this.userId, this._items);
   List<Product> _items = [
     Product(
       id: 'p1',
@@ -51,7 +55,7 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> addProduct(Product product) async {
     final url = Uri.parse(
-        'https://myshop-9d36f-default-rtdb.firebaseio.com/products.json');
+        'https://myshop-9d36f-default-rtdb.firebaseio.com/products.json?auth=$authToken');
 
     try {
       final response = await http.post(url,
@@ -60,7 +64,6 @@ class ProductsProvider with ChangeNotifier {
             "description": product.description,
             "price": product.price,
             "imageUrl": product.imageUrl,
-            "isFavorite": product.isFavorite
           }));
       print(response.body);
       final newProduct = Product(
@@ -77,9 +80,12 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
-  Future<void> AddAndFetch() async {
+  Future<void> addAndFetch() async {
     final url = Uri.parse(
-        'https://myshop-9d36f-default-rtdb.firebaseio.com/products.json');
+        'https://myshop-9d36f-default-rtdb.firebaseio.com/products.json?auth=$authToken');
+    final favUrl = Uri.parse(
+        'https://myshop-9d36f-default-rtdb.firebaseio.com/userFavorites/$userId/.json?auth=$authToken');
+
     try {
       final response = await http.get(url);
     } catch (error) {
@@ -94,7 +100,7 @@ class ProductsProvider with ChangeNotifier {
   Future<void> updateProduct(String id, Product product) async {
     var productIndex = _items.indexWhere((product) => product.id == id);
     final url = Uri.parse(
-        'https://myshop-9d36f-default-rtdb.firebaseio.com/products/$id.json');
+        'https://myshop-9d36f-default-rtdb.firebaseio.com/products/$id.json?auth=$authToken');
 
     if (productIndex <= 0) {
       print('...');
@@ -112,7 +118,7 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> remove(String id) async {
     final url = Uri.parse(
-        'https://myshop-9d36f-default-rtdb.firebaseio.com/products/$id.json');
+        'https://myshop-9d36f-default-rtdb.firebaseio.com/products/$id.json?auth=$authToken');
     final existingProductIndex = _items.indexWhere((prod) => id == prod.id);
     var existingProduct = _items[existingProductIndex];
     _items.remove(existingProduct);
